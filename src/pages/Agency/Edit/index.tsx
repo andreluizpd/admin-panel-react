@@ -1,12 +1,13 @@
-import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useQuery } from '@tanstack/react-query';
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { createAgency } from '../../../api';
+import { useParams } from 'react-router-dom';
+import { getAgency } from '../../../api';
 import { useAuth } from '../../../hooks/auth';
-import { CreateAgencyDto } from '../../../types/agency';
+import { UpdateAgencyDto } from '../../../types/agency';
 
-const CreateAgency = () => {
-  const [newAgency, setNewAgency] = useState<CreateAgencyDto>({
+const EditAgency = () => {
+  const [updateAgency, setUpdateAgency] = useState<UpdateAgencyDto>({
+    id: '',
     name: '',
     contact: '',
     detailsBackgroundImage: '',
@@ -17,31 +18,26 @@ const CreateAgency = () => {
     subtitle: '',
   });
 
-  const queryClient = useQueryClient();
-  const navigate = useNavigate();
+  const { agencyId } = useParams();
   const { token } = useAuth();
+  const { isLoading } = useQuery(
+    ['getAllAgencies', token, agencyId],
+    () => getAgency(agencyId as string, token),
+    { onSuccess: data => setUpdateAgency(data) }
+  );
 
-  const { isLoading, mutate } = useMutation(createAgency, {
-    onSuccess: () => {
-      queryClient.invalidateQueries(['getAllAgencies']);
-      navigate('/agency');
-    },
-  });
-
-  const submitNewAgency = () => {
-    mutate({ ...newAgency, token });
-  };
-
-  return (
+  return isLoading ? (
+    <h2>Carregando...</h2>
+  ) : (
     <div>
-      {isLoading && <h2>Criando...</h2>}
       <div>
         <label>Name</label>
         <input
           type='text'
           onChange={event =>
-            setNewAgency(agency => ({ ...agency, name: event.target.value }))
+            setUpdateAgency(agency => ({ ...agency, name: event.target.value }))
           }
+          value={updateAgency.name}
         />
       </div>
       <div>
@@ -49,11 +45,12 @@ const CreateAgency = () => {
         <input
           type='text'
           onChange={event =>
-            setNewAgency(agency => ({
+            setUpdateAgency(agency => ({
               ...agency,
               location: event.target.value,
             }))
           }
+          value={updateAgency.location}
         />
       </div>
       <div>
@@ -61,11 +58,12 @@ const CreateAgency = () => {
         <input
           type='text'
           onChange={event =>
-            setNewAgency(agency => ({
+            setUpdateAgency(agency => ({
               ...agency,
               subtitle: event.target.value,
             }))
           }
+          value={updateAgency.subtitle}
         />
       </div>
 
@@ -73,12 +71,13 @@ const CreateAgency = () => {
         <label>highlight</label>
         <input
           type='checkbox'
-          onChange={event =>
-            setNewAgency(agency => ({
+          onChange={() =>
+            setUpdateAgency(agency => ({
               ...agency,
               highlight: !agency.highlight,
             }))
           }
+          value={updateAgency.highlight ? 1 : 0}
         />
       </div>
 
@@ -87,8 +86,12 @@ const CreateAgency = () => {
         <input
           type='text'
           onChange={event =>
-            setNewAgency(agency => ({ ...agency, contact: event.target.value }))
+            setUpdateAgency(agency => ({
+              ...agency,
+              contact: event.target.value,
+            }))
           }
+          value={updateAgency.contact}
         />
       </div>
       <div>
@@ -96,8 +99,9 @@ const CreateAgency = () => {
         <input
           type='text'
           onChange={event =>
-            setNewAgency(agency => ({ ...agency, icon: event.target.value }))
+            setUpdateAgency(agency => ({ ...agency, icon: event.target.value }))
           }
+          value={updateAgency.icon}
         />
       </div>
       <div>
@@ -105,11 +109,12 @@ const CreateAgency = () => {
         <input
           type='text'
           onChange={event =>
-            setNewAgency(agency => ({
+            setUpdateAgency(agency => ({
               ...agency,
               highlightPhoto: event.target.value,
             }))
           }
+          value={updateAgency.highlightPhoto}
         />
       </div>
       <div>
@@ -117,17 +122,24 @@ const CreateAgency = () => {
         <input
           type='text'
           onChange={event =>
-            setNewAgency(agency => ({
+            setUpdateAgency(agency => ({
               ...agency,
               detailsBackgroundImage: event.target.value,
             }))
           }
+          value={updateAgency.detailsBackgroundImage}
         />
       </div>
 
-      <button onClick={submitNewAgency}>Criar</button>
+      <button
+        onClick={() => {
+          console.log(updateAgency);
+        }}
+      >
+        Criar
+      </button>
     </div>
   );
 };
 
-export default CreateAgency;
+export default EditAgency;

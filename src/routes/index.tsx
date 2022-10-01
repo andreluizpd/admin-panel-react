@@ -3,6 +3,7 @@ import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { useAuth } from '../hooks/auth';
 import Agency from '../pages/Agency';
 import CreateAgency from '../pages/Agency/Create';
+import EditAgency from '../pages/Agency/Edit';
 import AgenciesList from '../pages/Agency/List';
 import Home from '../pages/Home';
 import Login from '../pages/Login';
@@ -17,7 +18,7 @@ const AppRoutes = () => {
           <>
             <Route path='/' element={<Home />} />
             <Route path='agency' element={<Agency />}>
-              <Route path=':agencyId' element={<>temp1</>} />
+              <Route path=':agencyId' element={<EditAgency />} />
               <Route path='new' element={<CreateAgency />} />
               <Route index element={<AgenciesList />} />
             </Route>
